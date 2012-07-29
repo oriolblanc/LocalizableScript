@@ -114,6 +114,10 @@ function writeIOSFiles($files)
     $CatPath = "ca.lproj";
     $EnglishPath = "en.lproj";
     $SpanishPath = "es.lproj";
+    $GermanPath = "de.lproj";
+    $FrenchPath = "fr.lproj";
+    $ItalianPath = "it.lproj";
+    $PortuguesePath = "pt.lproj";
 
 	foreach ($files as $languageName => $lines)
 	{
@@ -131,6 +135,22 @@ function writeIOSFiles($files)
 		{
 			$directory = $SpanishPath;
 		}
+		else if($languageName == "German")
+		{
+			$directory = $GermanPath;
+		}
+		else if($languageName == "French")
+		{
+			$directory = $FrenchPath;
+		}
+		else if($languageName == "Italian")
+		{
+			$directory = $ItalianPath;
+		}
+		else if($languageName == "Portuguese")
+		{
+			$directory = $PortuguesePath;
+		}		
 		else
 		{
 			$directory = $languageName;
