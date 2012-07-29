@@ -10,11 +10,12 @@ if (!$argv[1])
 }
 
 $localizationFileLines = file_get_contents($url);
+var_dump($localizationFileLines);
 
 $localizationFileLines = explode("\n", $localizationFileLines);
 
 $iOSFiles = array();
-$androidFiles = array(zx);
+$androidFiles = array();
 
 if (count($localizationFileLines) > 0)
 {
@@ -75,7 +76,7 @@ if (count($localizationFileLines) > 0)
 	
 	writeIOSFiles($iOSFiles);
 	
-	//writeAndroidFiles($androidFiles);
+	writeAndroidFiles($androidFiles);
 }
 else
 {
@@ -170,7 +171,6 @@ function writeAndroidFiles($files)
 			fwrite($fh, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 			fwrite($fh, "<resources>\n\n");
 			
-			var_dump($lines);
 			foreach ($lines as $line)
 			{
 				fwrite($fh, $line."\n");
