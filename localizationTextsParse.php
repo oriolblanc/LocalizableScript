@@ -3,10 +3,17 @@
 <?php 
 
 $url = $argv[1];
+$destPath = "";
+
+if($argv[2])
+{
+	$destPath = $argv[2];
+	var_dump("asdasd".$destPath);
+}
 
 if (!$argv[1])
 {
-    die("\n".'ERROR: Syntax: localizationTextsParse <url>'."\n\n");
+    die("\n".'ERROR: Syntax: localizationTextsParse <url> [<destination_path>]'."\n\n");
 }
 
 $localizationFileLines = file_get_contents($url);
@@ -74,7 +81,7 @@ if (count($localizationFileLines) > 0)
 		$i++;
 	}
 	
-	writeIOSFiles($iOSFiles);
+	writeIOSFiles($iOSFiles, $destPath);
 	
 	writeAndroidFiles($androidFiles);
 }
@@ -107,9 +114,10 @@ function androidCommentParse($comment)
 	return "\n\t<!--".$comment."-->";
 }
 
-function writeIOSFiles($files)
+function writeIOSFiles($files, $destPath)
 {
-    $iOSPath = "iPhone";
+	var_dump("  asdasd ".$destPath."  asdasd ");
+    $iOSPath = $destPath;
 
     $CatPath = "ca.lproj";
     $EnglishPath = "en.lproj";
