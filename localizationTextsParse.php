@@ -16,6 +16,27 @@ if (!$argv[1])
     die("\n".'ERROR: Syntax: localizationTextsParse <url> [<destination_path>]'."\n\n");
 }
 
+/*
+argv 3 specifies which files get exported in a terrible, terrible way
+
+100 exports only iOS
+010 exports only Android
+001 exports only JSON
+
+110 Exports iOS+Android
+
+And you get the idea.
+
+*/
+
+if (!$argv[3])
+{
+    $argv[3] = '111';
+}
+
+
+
+
 $localizationFileLines = file_get_contents($url);
 var_dump($localizationFileLines);
 
@@ -61,6 +82,7 @@ if (count($localizationFileLines) > 0)
 	
 					$iOSFiles[$languageName][] = $iOSParsedLine;
 					$androidFiles[$languageName][] = $androidParsedLine;
+					$jsonFiles[convertLanguageToISO639($languageName)][$key] = $value;
 					
 					$languageIndex++;
 				}
@@ -81,9 +103,16 @@ if (count($localizationFileLines) > 0)
 		$i++;
 	}
 	
-	writeIOSFiles($iOSFiles, $destPath);
+	if($argv[3][0] == '1') {
+		writeIOSFiles($iOSFiles, $destPath);
+	}
+	if($argv[3][1] == '1') {
+		writeAndroidFiles($androidFiles);
+	}
+	if($argv[3][2] == '1') {
+		writeJSONFiles($jsonFiles, $destPath);
+	}
 	
-	writeAndroidFiles($androidFiles);
 }
 else
 {
@@ -116,7 +145,7 @@ function androidCommentParse($comment)
 
 function writeIOSFiles($files, $destPath)
 {
-	var_dump("  asdasd ".$destPath."  asdasd ");
+	 var_dump("  asdasd ".$destPath."  asdasd ");
     $iOSPath = $destPath;
 
     $CatPath = "ca.lproj";
@@ -225,11 +254,46 @@ function writeAndroidFiles($files)
 	}
 }
 
+function writeJSONFiles($files,$destPath)
+{
+	$path = "JSON";
+	
+	$filename = $destPath.'/stringsFromApp.json';
+	echo '.dddd.'.$filename.'<hr>';
+	createPathIfDoesntExists($filename);
+	
+	$fh = fopen($filename, "w");
+	if ($fh !== FALSE) {
+		fwrite($fh, json_encode($files));
+	}
+	else
+	{
+		echo "Error opening file $filename to write";
+	}
+	
+}
+
 function createPathIfDoesntExists($filename)
 {
     $dirname = dirname($filename);
+    echo '<hr>'.$dirname;
     if (!is_dir($dirname))
     {
         mkdir($dirname, 0755, true);
     }
+}
+
+function convertLanguageToISO639($language) {
+
+	$languages['Catalan'] = "ca";
+	$languages['English'] = "en";
+	$languages['Spanish'] = "es";
+	$languages['German'] = "de";
+	$languages['French'] = "fr";
+	$languages['Italian'] = "it";
+	$languages['Portuguese'] = "pt";
+	$languages['Dutch'] = "nl";
+	$languages['Swedish'] = "sv";
+
+	return $languages[$language];
 }
