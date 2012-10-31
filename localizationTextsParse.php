@@ -5,18 +5,26 @@
 $url = $argv[1];
 $destPath = "";
 
+$width = shell_exec('tput cols');
+if(!$width) {$width = 80;}
+$outputDivider = str_repeat('-',$width);
+
+echo $outputDivider."\n";
+
 if($argv[2])
 {
 	$destPath = $argv[2];
-	var_dump("asdasd".$destPath);
+	echo("Destination Path:\n".$destPath."\n");
+	echo $outputDivider."\n";
 }
 
 if (!$argv[1])
 {
-    die("\n".'ERROR: Syntax: localizationTextsParse <url> [<destination_path>]'."\n\n");
+    die("\n".'ERROR: Syntax: localizationTextsParse <url> [<destination_path>] [<formats>]'."\n\n");
 }
 
 /*
+
 argv 3 specifies which files get exported in a terrible, terrible way
 
 100 exports only iOS
@@ -38,12 +46,14 @@ if (!$argv[3])
 
 
 $localizationFileLines = file_get_contents($url);
-var_dump($localizationFileLines);
+//var_dump($localizationFileLines);
 
 $localizationFileLines = explode("\n", $localizationFileLines);
 
 $iOSFiles = array();
 $androidFiles = array();
+
+echo "Lines: ".count($localizationFileLines)."\n";
 
 if (count($localizationFileLines) > 0)
 {
@@ -60,7 +70,7 @@ if (count($localizationFileLines) > 0)
 
 		$key = $fields[0];
 		$values = array_slice($fields, 1);
-		
+				
 		if ($i == 0)
 		{
 			$languages = $values;
@@ -71,8 +81,11 @@ if (count($localizationFileLines) > 0)
 		
 			if (!$lineIsAComment) // It's not a comment
 			{
-				$languageIndex = 0;
 				
+				echo $key,',';
+				
+				$languageIndex = 0;
+								
 				foreach ($values as $value)
 				{
 					$iOSParsedLine = iOSLineParse($key, $value);
@@ -102,6 +115,8 @@ if (count($localizationFileLines) > 0)
 
 		$i++;
 	}
+	
+	echo "\n".$outputDivider."\n";
 	
 	if($argv[3][0] == '1') {
 		writeIOSFiles($iOSFiles, $destPath);
@@ -145,7 +160,6 @@ function androidCommentParse($comment)
 
 function writeIOSFiles($files, $destPath)
 {
-	 var_dump("  asdasd ".$destPath."  asdasd ");
     $iOSPath = $destPath;
 
     $CatPath = "ca.lproj";
@@ -204,6 +218,7 @@ function writeIOSFiles($files, $destPath)
 		}
 		
 		$filename = $iOSPath."/".$directory."/localizable.strings";
+		echo("iOS  - Trying to Write:\n".$filename."\n");	
         createPathIfDoesntExists($filename);
 		$fh = fopen($filename, "w");
 		
@@ -215,10 +230,11 @@ function writeIOSFiles($files, $destPath)
 			}
 			
 			fclose($fh);
+			echo "iOS  - ".chr(27)."[1;32m".'Done'.chr(27)."[0m"."\n\n";
 		}
 		else
 		{
-			echo "Error opening file $filename to write";
+			echo "iOS  - Error opening file $filename to write\n\n";
 		}
 	}
 }
@@ -230,6 +246,7 @@ function writeAndroidFiles($files)
 	foreach ($files as $languageName => $lines)
 	{
         $filename = $androidPath."/localizations-".$languageName.".xml";
+        echo("ANDR - Trying to Write:\n".$filename."\n");	
         createPathIfDoesntExists($filename);
 		$fh = fopen($filename, "w");
 		
@@ -240,35 +257,37 @@ function writeAndroidFiles($files)
 			
 			foreach ($lines as $line)
 			{
-				fwrite($fh, $line."\n");
+				fwrite($fh, $line."\n\n");
 			}
 			
 			fwrite($fh, "\n</resources>");
 			
 			fclose($fh);
+			
+			echo "ANDR - ".chr(27)."[1;32m".'Done'.chr(27)."[0m"."\n\n";
 		}
 		else
 		{
-			echo "Error opening file $filename to write";
+			echo "ANDR - Error opening file $filename to write\n\n";
 		}
 	}
 }
 
 function writeJSONFiles($files,$destPath)
 {
-	$path = "JSON";
 	
 	$filename = $destPath.'/stringsFromApp.json';
-	echo '.dddd.'.$filename.'<hr>';
+	echo("JSON - Trying to Write:\n".$filename."\n");	
 	createPathIfDoesntExists($filename);
-	
+		
 	$fh = fopen($filename, "w");
 	if ($fh !== FALSE) {
 		fwrite($fh, json_encode($files));
+		echo "JSON - ".chr(27)."[1;32m".'Done'.chr(27)."[0m"."\n\n";
 	}
 	else
 	{
-		echo "Error opening file $filename to write";
+		echo "JSON - Error opening file $filename to write\n\n";
 	}
 	
 }
@@ -276,8 +295,7 @@ function writeJSONFiles($files,$destPath)
 function createPathIfDoesntExists($filename)
 {
     $dirname = dirname($filename);
-    echo '<hr>'.$dirname;
-    if (!is_dir($dirname))
+     if (!is_dir($dirname))
     {
         mkdir($dirname, 0755, true);
     }
