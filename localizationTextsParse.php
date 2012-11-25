@@ -53,11 +53,10 @@ $localizationFileLines = explode("\n", $localizationFileLines);
 $iOSFiles = array();
 $androidFiles = array();
 
-echo "Lines: ".count($localizationFileLines)."\n";
-
 if (count($localizationFileLines) > 0)
 {
 	$i = 0;
+	$lines = 0;
 
 	foreach ($localizationFileLines as $line)
 	{
@@ -83,6 +82,7 @@ if (count($localizationFileLines) > 0)
 			{
 				
 				echo $key,',';
+				$lines++;
 				
 				$languageIndex = 0;
 								
@@ -117,6 +117,8 @@ if (count($localizationFileLines) > 0)
 	}
 	
 	echo "\n".$outputDivider."\n";
+	echo "Lines: ".count($localizationFileLines);
+	echo "\n".$outputDivider."\n\n";
 	
 	if($argv[3][0] == '1') {
 		writeIOSFiles($iOSFiles, $destPath);
