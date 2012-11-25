@@ -78,7 +78,7 @@ if (count($localizationFileLines) > 0)
 		{
 			$lineIsAComment = count($values) == 0;
 		
-			if (!$lineIsAComment) // It's not a comment
+			if (!$lineIsAComment && strlen($key) > 0) // It's not a comment and it's not empty
 			{
 				
 				echo $key,',';
@@ -92,10 +92,12 @@ if (count($localizationFileLines) > 0)
 					$androidParsedLine = androidLineParse($key, $value);
 	
 					$languageName = $languages[$languageIndex];
-	
-					$iOSFiles[$languageName][] = $iOSParsedLine;
-					$androidFiles[$languageName][] = $androidParsedLine;
-					$jsonFiles[convertLanguageToISO639($languageName)][$key] = $value;
+					
+					if($languageName != '#') {
+						$iOSFiles[$languageName][] = $iOSParsedLine;
+						$androidFiles[$languageName][] = $androidParsedLine;
+						$jsonFiles[convertLanguageToISO639($languageName)][$key] = $value;
+					}
 					
 					$languageIndex++;
 				}
