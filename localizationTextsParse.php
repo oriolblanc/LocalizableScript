@@ -140,6 +140,7 @@ else
 
 function iOSLineParse($key, $localizedString)
 {	
+	$localizedString = str_replace('"', '\"', $localizedString);
 	return "\"$key\" = \"$localizedString\";";
 }
 
