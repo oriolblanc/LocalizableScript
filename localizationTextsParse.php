@@ -147,13 +147,36 @@ function iOSLineParse($key, $localizedString)
 	return "\"$key\" = \"$localizedString\";";
 }
 
+$occurencesCounter = 0;
 function androidLineParse($key, $localizedString)
 {
+	// replace iOS string occurence to android format
 	$localizedString = str_replace("%@", "%s", $localizedString);
+  // if the string starts with @, escapes it: \@
+	$localizedString = preg_replace("/^(@)/", "\\@", $localizedString);
+
+	// replace multiple arguments to android format. Example:
+	// 	input: %s te ha enviado %s minuto de felicidad
+	// 	output: %1$s te ha enviado %2$s minuto de felicidad
+	resetOccurencesCounter();
+  $localizedString = preg_replace_callback("/%([a-z])/", "replaceArgumentsIntoAndroidFormat", $localizedString);
+
 	$localizedString = str_replace("'", "\'", $localizedString);
 	// Add more rules here.
 
 	return "\t<string name=\"".$key."\">".$localizedString."</string>";
+}
+
+function resetOccurencesCounter()
+{
+	global $occurencesCounter;
+  $occurencesCounter = 0;
+}
+
+function replaceArgumentsIntoAndroidFormat($occurrences)
+{
+  global $occurencesCounter;
+  return "%".++$occurencesCounter."$".$occurrences[1];
 }
 
 function iOSCommentParse($comment)
