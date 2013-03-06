@@ -77,8 +77,11 @@ if (count($localizationFileLines) > 0)
 		else
 		{
 			$lineIsAComment = count($values) == 0;
+      // if key contains spaces is considered a comment
+      $keyContainsWhitespaces = strpos($key,' ');
+      $merged_values = implode("", $values);
 		
-			if (!$lineIsAComment && strlen($key) > 0) // It's not a comment and it's not empty
+      if (!$lineIsAComment && !$keyContainsWhitespaces && strlen($key) > 0 && strlen($merged_values) > 0) // It's not a comment and it's not empty
 			{
 				
 				echo $key,',';
