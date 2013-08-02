@@ -129,7 +129,7 @@ if (count($localizationFileLines) > 0)
     writeIOSFiles($iOSFiles, $destPath);
   }
   if($argv[3][1] == '1') {
-    writeAndroidFiles($androidFiles);
+    writeAndroidFiles($androidFiles, $destPath);
   }
   if($argv[3][2] == '1') {
     writeJSONFiles($jsonFiles, $destPath);
@@ -150,15 +150,15 @@ function iOSLineParse($key, $localizedString)
 $occurencesCounter = 0;
 function androidLineParse($key, $localizedString)
 {
-	// replace iOS string occurence to android format
+  // replace iOS string occurence to android format
   $localizedString = str_replace("%@", "%s", $localizedString);
   // if the string starts with @, escapes it: \@
-	$localizedString = preg_replace("/^(@)/", "\\@", $localizedString);
+  $localizedString = preg_replace("/^(@)/", "\\@", $localizedString);
 
-	// replace multiple arguments to android format. Example:
-	// 	input: %s te ha enviado %s minuto de felicidad
-	// 	output: %1$s te ha enviado %2$s minuto de felicidad
-	resetOccurencesCounter();
+  // replace multiple arguments to android format. Example:
+  //  input: %s te ha enviado %s minuto de felicidad
+  //  output: %1$s te ha enviado %2$s minuto de felicidad
+  resetOccurencesCounter();
   $localizedString = preg_replace_callback("/%([a-z])/", "replaceArgumentsIntoAndroidFormat", $localizedString);
 
   $localizedString = str_replace("'", "\'", $localizedString);
@@ -169,7 +169,7 @@ function androidLineParse($key, $localizedString)
 
 function resetOccurencesCounter()
 {
-	global $occurencesCounter;
+  global $occurencesCounter;
   $occurencesCounter = 0;
 }
 
@@ -270,38 +270,42 @@ function writeIOSFiles($files, $destPath)
   }
 }
 
-function writeAndroidFiles($files)
+function writeAndroidFiles($files, $destPath)
 {
-  $androidPath = "android/values";
+  $androidPath = $destPath == "" ? "android" : $destPath."/values";
 
   foreach ($files as $languageName => $lines)
   {
-  	$languageCode = convertLanguageToISO639($languageName);
-  	$filenameLanguageCode = $languageCode == "en" ? "" : "-".$languageCode;
-    $filename = $androidPath.$filenameLanguageCode."/localizable.xml";
-    echo("ANDR - Trying to Write:\n".$filename."\n");
-    createPathIfDoesntExists($filename);
-    $fh = fopen($filename, "w");
+    $languageCode = convertLanguageToISO639($languageName);
+    
+    if ($languageCode != "") {
+      $filenameLanguageCode = $languageCode == "en" ? "" : "-".$languageCode;
+      $filename = $androidPath.$filenameLanguageCode."/strings.xml";
+      
+      echo("ANDR - Trying to Write:\n".$filename."\n");
+      createPathIfDoesntExists($filename);
+      $fh = fopen($filename, "w");
 
-    if ($fh !== FALSE)
-    {
-      fwrite($fh, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-      fwrite($fh, "<resources>\n\n");
-
-      foreach ($lines as $line)
+      if ($fh !== FALSE)
       {
-        fwrite($fh, $line."\n\n");
+        fwrite($fh, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+        fwrite($fh, "<resources>\n\n");
+
+        foreach ($lines as $line)
+        {
+          fwrite($fh, $line."\n\n");
+        }
+
+        fwrite($fh, "\n</resources>");
+
+        fclose($fh);
+
+        echo "ANDR - ".chr(27)."[1;32m".'Done'.chr(27)."[0m"."\n\n";
       }
-
-      fwrite($fh, "\n</resources>");
-
-      fclose($fh);
-
-      echo "ANDR - ".chr(27)."[1;32m".'Done'.chr(27)."[0m"."\n\n";
-    }
-    else
-    {
-      echo "ANDR - Error opening file $filename to write\n\n";
+      else
+      {
+        echo "ANDR - Error opening file $filename to write\n\n";
+      } 
     }
   }
 }
