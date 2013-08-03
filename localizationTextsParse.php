@@ -293,6 +293,7 @@ function writeAndroidFiles($files, $destPath)
 
         foreach ($lines as $line)
         {
+          $line = replaceParametersToAndroidFormat($line);
           fwrite($fh, $line."\n\n");
         }
 
@@ -327,6 +328,25 @@ function writeJSONFiles($files,$destPath)
     echo "JSON - Error opening file $filename to write\n\n";
   }
 
+}
+
+function replaceParametersToAndroidFormat($line)
+{
+  $patterns = array();
+  $patterns[0] = '/%1\$@/';
+  $patterns[1] = '/%2\$@/';
+  $patterns[2] = '/%3\$@/';
+  $patterns[3] = '/%4\$@/';
+  $patterns[4] = '/%5\$@/';
+
+  $replacements = array();
+  $replacements[0] = '%1$s';
+  $replacements[1] = '%2$s';
+  $replacements[2] = '%3$s';
+  $replacements[3] = '%4$s';
+  $replacements[4] = '%5$s';
+
+  return preg_replace($patterns, $replacements, $line);
 }
 
 function createPathIfDoesntExists($filename)
