@@ -293,7 +293,8 @@ function writeAndroidFiles($files)
 function writeJSONFiles($files,$destPath)
 {
 	
-	$filename = $destPath.'/stringsFromApp.json';
+	$filename = $destPath.'/strings.json';
+
 	echo("JSON - Trying to Write:\n".$filename."\n");	
 	createPathIfDoesntExists($filename);
 		
