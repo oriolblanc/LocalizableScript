@@ -42,6 +42,18 @@ if (!$argv[3])
     $argv[3] = '111';
 }
 
+/*
+	
+argv 4 is a generic cache directory for storing diffs
+it's optional but reccommended
+	
+*/
+if (!$argv[4])
+{
+    $argv[4] = false;
+}
+
+
 
 
 
@@ -52,6 +64,7 @@ $localizationFileLines = explode("\n", $localizationFileLines);
 
 $iOSFiles = array();
 $androidFiles = array();
+$keys = array();
 
 if (count($localizationFileLines) > 0)
 {
@@ -81,7 +94,7 @@ if (count($localizationFileLines) > 0)
 			if (!$lineIsAComment && strlen($key) > 0) // It's not a comment and it's not empty
 			{
 				
-				echo $key,',';
+				$keys[] = $key;
 				$lines++;
 				
 				$languageIndex = 0;
@@ -119,8 +132,8 @@ if (count($localizationFileLines) > 0)
 	}
 	
 	echo "\n".$outputDivider."\n";
-	echo "Lines: ".count($localizationFileLines);
-	echo "\n".$outputDivider."\n\n";
+	echo compareDiff($argv[4],$keys);
+	echo $outputDivider."\n\n";
 	
 	if($argv[3][0] == '1') {
 		writeIOSFiles($iOSFiles, $destPath);
@@ -318,4 +331,44 @@ function convertLanguageToISO639($language) {
 	$languages['Swedish'] = "sv";
 
 	return $languages[$language];
+}
+
+function compareDiff($path,$keys) {
+	
+	global $outputDivider;
+	
+	$original = json_decode(file_get_contents($path.'localizationTextsParse/strings.pack'));
+	$added = array();
+	$removed = array();
+
+	foreach($original as $key) {
+		if(!in_array($key, $keys)) {
+			$removed[] = $key;
+		}
+	}
+	foreach($keys as $key) {
+		if(!in_array($key, $original)) {
+			$added[] = $key;
+		}
+	}
+		
+	if($added[0]) {
+		echo '[+] '.implode(',', $added)."\n";
+	}
+	if($removed[0]) {
+		echo '[-] '.implode(',', $removed)."\n";
+	}
+	
+	if(!$added[0] && !$removed[0]) {
+		echo '[x] no key changes'."\n";
+	}
+	
+	echo '[·] '.count($keys). ' total keys'."\n";
+	
+	createPathIfDoesntExists($path.'localizationTextsParse/a.file');
+	$pack = fopen($path.'localizationTextsParse/strings.pack', "w+");
+	if ($pack !== FALSE) {
+		fwrite($pack,json_encode($keys));
+	} else {}
+	
 }
