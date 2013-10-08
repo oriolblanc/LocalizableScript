@@ -329,6 +329,7 @@ function convertLanguageToISO639($language) {
 	$languages['Portuguese'] = "pt";
 	$languages['Dutch'] = "nl";
 	$languages['Swedish'] = "sv";
+	$languages['Gallego'] = "gl";
 
 	return $languages[$language];
 }
