@@ -202,6 +202,7 @@ function writeIOSFiles($files, $destPath)
     $PortuguesePath = "pt.lproj";
     $DutchPath = "nl.lproj";
     $SwedishPath = "sv.lproj";
+    $ChinesePath = "zh-Hans.lproj";
 
   foreach ($files as $languageName => $lines)
   {
@@ -242,6 +243,10 @@ function writeIOSFiles($files, $destPath)
     else if($languageName == "Swedish")
     {
       $directory = $SwedishPath;
+    }
+    else if($languageName == "Chinese")
+    {
+      $directory = $ChinesePath;
     }
     else
     {
